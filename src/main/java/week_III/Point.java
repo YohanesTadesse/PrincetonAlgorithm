@@ -62,19 +62,20 @@ public class Point implements Comparable<Point> {
      * @return the slope between this point and the specified point
      */
     public double slopeTo(Point that) {
-        /* YOUR CODE HERE */
+        if (null == that) throw new IllegalArgumentException();
 
         final int numerator = that.y - this.y;
         final int denominator = that.x - this.x;
 
-        //degenerate == p1 == p2
+        // degenerate == p1 == p2
         if (denominator == 0 && numerator == 0)
             return Double.NEGATIVE_INFINITY;
-        //vertical line -- undefined
+        // vertical line -- undefined
         if (denominator == 0)
             return Double.POSITIVE_INFINITY;
-
-         return numerator / denominator;
+        if (numerator == 0)
+            return 0.0;
+        return (double) numerator / denominator;
     }
 
     /**
@@ -90,16 +91,16 @@ public class Point implements Comparable<Point> {
      * argument point
      */
     public int compareTo(Point that) {
-        /* YOUR CODE HERE */
-        if (this.y < that.y)
-            return -1;
-        else if (this.y > that.y)
-            return 1;
-        return compareX(that);
+        if (null == that) throw new IllegalArgumentException();
+
+        final int result = compareY(that);
+        if (result == 0)
+           return Double.compare(this.x, that.x);
+        return result;
     }
 
-    private int compareX(final Point that) {
-        return Integer.compare(this.x, that.x);
+    private int compareY(final Point that) {
+        return Double.compare(this.y, that.y);
     }
 
     /**
@@ -114,13 +115,12 @@ public class Point implements Comparable<Point> {
         return new Comparator<Point>() {
             @Override
             public int compare(final Point o1, final Point o2) {
+                if (null == o1 || null == o2) throw new IllegalArgumentException();
+
                 final double slope1 = slopeTo(o1);
                 final double slope2 = slopeTo(o2);
-                if (slope1 < slope2)
-                    return -1;
-                else if (slope1 > slope2)
-                    return 1;
-                return 0;
+
+                return Double.compare(slope1, slope2);
             }
         };
     }
@@ -144,34 +144,63 @@ public class Point implements Comparable<Point> {
     public static void main(String[] args) {
         /* YOUR CODE HERE */
 
-        //compare two points
-        final Point p1 = new Point(1, 2);
-        final Point p2 = new Point(4, 2);
-        final Point p3 = new Point(1, 5);
-        final Point p4 = new Point(3, 8);
+//        // compare two points
+//        final Point p1 = new Point(1, 2);
+//        final Point p2 = new Point(4, 2);
+//        final Point p3 = new Point(1, 5);
+//        final Point p4 = new Point(3, 8);
+//
+//        System.out.println(p1.compareTo(p2));
+//        System.out.println(p2.compareTo(p1));
+//
+//
+//        System.out.println(p2.slopeTo(p2));
+//        System.out.println(p2.slopeTo(p4));
+//        System.out.println(p1.slopeTo(p3));
+//
+//
+//        System.out.println(p1.slopeTo(p4));
+//        System.out.println(p1.slopeTo(p2));
+//
+//        System.out.println(p2.slopeTo(p3));
+//
+//        System.out.println(p3.slopeTo(p4));
 
-        System.out.println(p1.compareTo(p2));
-        System.out.println(p2.compareTo(p1));
-        System.out.println(p2.compareTo(p2));
+
+        final Point p12 = new Point(8, 9);
+        final Point p13 = new Point(3, 3);
+        final double v = p12.slopeTo(p13);
+        for (int i = 0; i < 100000; i++) {
+            final double x = p12.slopeTo(p13);
+            if (Double.compare(x, v) != 0)
+            System.out.println(v + " : " + x);
+        }
+
+        final Point p16 = new Point(30836, 23979);
+        final Point p17 = new Point(8363, 29470);
+        for (int i = 0; i < 100; i++) {
+            final double x = p16.slopeTo(p17);
+        }
+
+        final Point p18 = new Point(30836, 23979);
+        final Point p19 = new Point(8363, 23979);
+        for (int i = 0; i < 100; i++) {
+            final double x = p18.slopeTo(p19);
+        }
 
 
-        System.out.println(p2.slopeTo(p2));
-        System.out.println(p2.slopeTo(p4));
-        System.out.println(p1.slopeTo(p3));
-
-
-        System.out.println(p1.slopeTo(p4));
-        System.out.println(p1.slopeTo(p2));
-
-        System.out.println(p2.slopeTo(p3));
-
-        System.out.println(p3.slopeTo(p4));
-
-        final Point pp1 = new Point(1, 1);
-        final Point pp2 = new Point(2, 2);
-        final Point pp3 = new Point(3, 3);
-        final Point pp4 = new Point(4, 4);
-
-        System.out.println(pp1.slopeTo(pp2));
+//        final Point p14 = new Point(410, 361);
+//        final Point p15 = new Point(410, 361);
+//
+//        for (int i = 0; i < 10; i++) {
+//
+//            System.out.println(p14.slopeTo(p15));
+//        }
+//
+//
+//        final Point pp1 = new Point(1, 1);
+//        final Point pp2 = new Point(2, 2);
+//
+//        System.out.println(pp1.slopeTo(pp2));
     }
 }

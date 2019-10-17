@@ -8,127 +8,105 @@ package week_III;
  **************************************************************************** */
 
 public class BruteCollinearPoints {
-    private LineSegment[] lineSegment;
-    private int numberOfSegments = 0;
+    private int segments;
+    private final LineSegment[] lineSegments;
 
-    public BruteCollinearPoints(Point[] points) {
+
+    public BruteCollinearPoints(final Point[] points) {
+        checkForIllegalArgument(points);
+        if (points.length < 4) {
+            lineSegments = new LineSegment[0];
+            segments = 0;
+            return;
+        }
+        final Point[] deDupPoints = deDupPoints(points);
+        final int length = deDupPoints.length;
+        lineSegments = new LineSegment[length];
+        segments = 0;
+        findSegments(deDupPoints, length);
+    }
+
+    private Point[] deDupPoints(final Point[] points) {
+
+        int end = points.length;
+
+        for (int i = 0; i < end; i++) {
+            for (int j = i + 1; j < end; j++) {
+                if (points[i].compareTo(points[j]) == 0) {
+                    int shiftLeft = j;
+                    for (int k = j+1; k < end; k++, shiftLeft++) {
+                        points[shiftLeft] = points[k];
+                    }
+                    end--;
+                    j--;
+                }
+            }
+        }
+
+        final Point[] whitelist = new Point[end];
+        for(int i = 0; i < end; i++){
+            whitelist[i] = points[i];
+        }
+        return whitelist;
+    }
+
+    private void findSegments(final Point[] points, final int length) {
+        // 4segments only for n inputs
+
+        final boolean[] flag = new boolean[length];
+        for (int i = 0; i < length; i++) {
+            if (flag[i]) {
+                continue;
+            }
+            boolean exit = false;
+            final Point p1 = points[i];
+
+            for (int j = i + 1; j < length; j++) {
+                final Point p2 = points[j];
+                for (int k = j + 1; k < length; k++) {
+                    final Point p3 = points[k];
+                    for (int m = k + 1; m < length; m++) {
+                        final Point p4 = points[m];
+                        if (p1.slopeTo(p2) == p3.slopeTo(p4)) {
+                            final LineSegment newLineSegment = new LineSegment(p1, p4);
+                            lineSegments[segments] = newLineSegment;
+                            segments++;
+                            flag[i] = true;
+                            flag[j] = true;
+                            flag[k] = true;
+                            flag[m] = true;
+                            exit = true;
+                        }
+                        if (exit) break;
+                    }
+                    if (exit) break;
+                }
+                if (exit) break;
+            }
+        }
+    }
+
+    private void checkForIllegalArgument(final Point[] points) {
         if (null == points)
             throw new IllegalArgumentException();
 
-        computeLineSegments(points);
-    }
-
-    private void computeLineSegments(final Point[] points) {
-        int length = points.length;
-        int allSlopesSize = calculateSize(length - 1);
-        final double[] slopes = new double[allSlopesSize];
-        lineSegment = new LineSegment[allSlopesSize/4];
-        int slopeCounter = 0;
-
-
-        for (int i = 0; i < length; i++) {
-            for (int j = i + 1; j < length; j++) {
-                slopes[slopeCounter] = points[i].slopeTo(points[j]);
-                slopeCounter++;
-
-            }
+        for (final Point point : points) {
+            if (null == point) throw new IllegalArgumentException();
         }
-
-        final int[] duplicateSlopeIndexes = new int[slopeCounter];
-        int duplicateCounter = 0;
-        for (int i = 0; i < slopeCounter; i++) {
-
-            boolean duplicate = false;
-            for (int j = 0; j < duplicateCounter; j++) {
-                if (i == duplicateSlopeIndexes[j]) {
-                    duplicate = true;
-                    break;
-                }
-            }
-
-            if (duplicate)
-                continue;
-
-            final double slopeI = slopes[i];
-            int equalityCounter = 0;
-
-            for (int j = i + 1; j < slopeCounter; j++) {
-                final double slopeJ = slopes[j];
-                if (slopeI == slopeJ) {
-                    equalityCounter++;
-                    duplicateSlopeIndexes[duplicateCounter] = j;
-                    duplicateCounter++;
-                }
-                if (equalityCounter >= 4) {
-                    if(createAndAddSegments(i, j, points))
-                    break;
-                }
-
-            }
-
-        }
-
     }
 
-    private boolean createAndAddSegments(final int i, final int j, final Point[] points) {
-        final int length = points.length;
-        final int[] first = getOriginalIndex(i, length);
-        final int[] second = getOriginalIndex(j, length);
-
-        final Point pointOne = points[first[0]];
-        final Point pointTwo = points[first[1]];
-        final Point pointThree = points[second[0]];
-        final Point pointFour = points[second[1]];
-
-        if (pointOne.compareTo(pointThree) == 0
-                || pointOne.compareTo(pointFour) == 0
-                || pointTwo.compareTo(pointThree) == 0
-                || pointTwo.compareTo(pointFour) == 0)
-            return false;
-
-        final LineSegment segment = new LineSegment(pointOne, pointFour);
-        lineSegment[numberOfSegments] = segment;
-        numberOfSegments++;
-        return true;
-    }
-
-
-
-    private int[] getOriginalIndex(final int fakeIndex, final int size) {
-
-        int index = fakeIndex;
-        int n = size -1;
-
-        int i = 0;
-        int postFix = 1;
-
-        while(index >= n) {
-            index -= n;
-            n--;
-            i++;
-            postFix++;
-        }
-        int j = postFix + index;
-
-        return new int[] {i, j};
-    }
-
-    private int calculateSize(final int n) {
-        if (n == 1) return 1;
-        return n + calculateSize(n - 1);
-    }
 
     // the number of line segments
     public int numberOfSegments() {
-        return numberOfSegments;
+        return segments;
     }
 
     public LineSegment[] segments() {
-        final LineSegment[] result = new LineSegment[numberOfSegments];
-        for (int i = 0; i < numberOfSegments; i++) {
-            result[i] = lineSegment[i];
+        final LineSegment[] results = new LineSegment[segments];
+        for (int i = 0; i < segments; i++) {
+            results[i] = lineSegments[i];
         }
-        return result;
+        return results;
     }
 
 }

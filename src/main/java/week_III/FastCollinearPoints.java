@@ -1,6 +1,7 @@
 package week_III;
 
 
+import javax.sound.sampled.Line;
 import java.util.Comparator;
 
 /** *****************************************************************************
@@ -21,9 +22,10 @@ public class FastCollinearPoints {
 
     private void compute(final Point[] points) {
         final int length = points.length;
-        if (length < 4)
+        if (length < 4) {
+            lineSegments = new LineSegment[0];
             return;
-
+        }
         final int maxPossibleSegmentsSize = length/4;
         lineSegments = new LineSegment[maxPossibleSegmentsSize];
 
@@ -43,10 +45,9 @@ public class FastCollinearPoints {
         }
     }
 
-
     private void sort(Point[] a, Point[] aux, int lo, int hi, Point p) {
         if (hi <= lo) return;
-        int mid = lo + (hi - lo) / 2;
+        int mid = lo + (hi - lo)/ 2;
         sort (aux, a, lo, mid, p);
         sort (aux, a, mid + 1, hi, p);
         merge(a, aux, lo, mid, hi, p);
@@ -66,11 +67,10 @@ public class FastCollinearPoints {
         }
     }
 
-    private static boolean less(final Point first, final Point second, final Point p) {
+    private boolean less(final Point first, final Point second, final Point p) {
         final Comparator<Point> comparator = p.slopeOrder();
         return  (comparator.compare(first, second) < 0);
     }
-
 
     public int numberOfSegments() {
         return segmentCounter;
